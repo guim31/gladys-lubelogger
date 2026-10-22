@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-22
+
 ### Added
 
 - One device per LubeLogger vehicle: odometer (or engine hours), average
@@ -24,3 +26,6 @@ the notes of the version's GitHub Release.
   variable) and "Read a vehicle in LubeLogger".
 - No authentication, API key or user and password; LubeLogger 1.5.9 or later.
 - Texts and documentation in English, French, German and Spanish.
+
+[Unreleased]: https://github.com/guim31/gladys-lubelogger/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/guim31/gladys-lubelogger/releases/tag/v1.0.0
