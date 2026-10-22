@@ -1,61 +1,137 @@
-# Demo Devices Template
+# LubeLogger
 
-This is the user documentation of the integration. Gladys re-hosts this file
-and shows a permanent **Documentation** link to it in the Configuration screen
-(in the user's language, with English as the fallback) — it is when
-configuring that the user needs it most. Keep the short onboarding hints in
-the `section` blocks of the manifest `config_schema`; put the long
-step-by-step (screenshots, troubleshooting…) here.
+Follow your vehicles in Gladys with [LubeLogger](https://lubelogger.com), the
+self-hosted vehicle maintenance log: odometer, average consumption, spending
+of the month and above all the **maintenance reminders** (oil change, tyres,
+inspection, insurance) as scene triggers. Gladys talks directly to your
+LubeLogger server, at home or on a remote server.
 
-## What you get
+Tested against a real LubeLogger 1.7.4 server (the official Docker image),
+reminders by date and by odometer included. Feedback is welcome on the Gladys
+forum.
 
-Six demo devices show up after installation: a weather station (real data
-from Open-Meteo), a switch, a dimmable light, a smart plug with power
-metering, a motion sensor and a camera.
+## Prerequisites
+
+- Gladys Assistant 5.1 or later.
+- LubeLogger **1.5.9 or later**, reachable from the Gladys machine (port 8080
+  by default, or behind a reverse proxy).
+- If authentication is on in LubeLogger: an **API key** (LubeLogger → Settings
+  → API Keys, **View** and **Edit** permissions; View alone is enough if you do
+  not add odometer readings), or the user name and password of a LubeLogger
+  user. The integration sees the vehicles of that user.
 
 ## Configuration
 
 1. Open the **Configuration** tab of the integration.
-2. Set the **latitude** and **longitude** the demo weather station should
-   observe (they default to Paris), and pick your temperature unit.
-   The **refresh interval** sets how often the weather station and the
-   plug's power are read: every 5 minutes by default, every minute at most.
-3. Save: the devices appear in the **Discovery** tab, ready to be added.
+2. In **LubeLogger address**, enter the IP address of the server, for example
+   `192.168.1.50`: the integration then uses port 8080. Add a port if yours
+   differs (`192.168.1.50:8081`). Behind a reverse proxy, enter the full
+   address (`https://example.org/lubelogger`).
+3. If authentication is on in LubeLogger, paste an **API key**, or fill in
+   **User name** and **Password**. The key wins when both are filled.
+   Otherwise, leave these fields empty.
+4. **Distance unit used in LubeLogger**: LubeLogger stores numbers without a
+   unit. Choose **Kilometres** (litres, L/100 km, kWh/100 km) or **Miles** (US
+   gallons, mpg, mi/kWh), as in your records.
+5. **Read LubeLogger every**: 5, 15 (default), 30 or 60 minutes.
+6. **Language of names and messages** sets the feature names (frozen when the
+   device is added), the texts and the dates of the scene variables. French by
+   default.
+7. Save, then use **Test the connection**: it shows the version of LubeLogger,
+   the number of vehicles and of reminders.
+8. In the **Discovery** tab, add the vehicles to follow.
 
-The **Prefer the local connection** toggle drives the demo plug: it reports
-the channel it actually uses as a badge (local or cloud), with an orange dot
-when it runs degraded (local refused, cloud fallback).
+## Devices
 
-## Actions
+One device per LubeLogger vehicle, named after its make, model and licence
+plate (`Renault Clio (AA-000-AA)`). Sold vehicles are left out.
 
-- **Test the weather provider** — performs a live request to Open-Meteo and
-  shows the current temperature and humidity under the button.
-- **Identify a device** — pick one of your devices in the list and it will
-  signal itself (the demo light "blinks" in the logs).
+| Feature             | Value                                                                  |
+| ------------------- | ---------------------------------------------------------------------- |
+| Odometer            | last reading known to LubeLogger, in km or miles                       |
+| Average consumption | L/100 km (or mpg); kWh/100 km (or mi/kWh) for an electric vehicle      |
+| Cost this month     | fuel, services, repairs, upgrades and taxes of the current month       |
+| Next reminder       | the most urgent reminder and when it is due (`Oil change · 45,000 km`) |
+| Reminders past due  | reminders whose date or odometer is passed                             |
+| Urgent reminders    | urgent or very urgent reminders                                        |
 
-## Scenes
+The consumption is LubeLogger's average: the distance driven over the fuel
+used, on the fill-ups it can compute (not the first one, not after a missed
+fill-up). Gladys has no "L/100 km" nor "mpg" unit: the value is published in
+litres (or without unit), the full unit is in the feature name. The cost is in
+the currency of LubeLogger (euro, dollar or pound sterling; another currency
+shows in the name). A vehicle counted in hours (boat, tractor) shows its
+**Engine hours**, without consumption.
 
-The integration adds its own cards to the scene editor (Gladys 5.1 or
-later), under the **Integrations** category:
+The urgency of the reminders is LubeLogger's own (by default: urgent at 30 days
+or 100 km, very urgent at 7 days or 50 km, set in its settings): Gladys and
+LubeLogger always agree.
 
-- **Motion detected** (trigger) — starts the scene when a demo motion sensor
-  sees something move. Optionally pick the sensor and what moved (person,
-  animal); left empty, any detection matches. The following actions can
-  read what moved with `{{triggerEvent.data.target}}`.
-- **Identify a device** (action) — makes the chosen device signal itself.
-  It returns whether the device could signal itself, so the following
-  actions can depend on it.
+## Dashboard widget
 
-## Dashboard
+**Upcoming maintenance**: two tiles (reminders past due, urgent reminders) and
+the list of the reminders, the most urgent first, with when they are due and a
+coloured badge. Setting **Vehicle**: empty for every vehicle, or one. Read
+only.
 
-Add the **Demo status** widget to a dashboard: it shows the live
-temperature of the weather station and the power of the office plug, the
-connection the plug currently uses (orange when degraded) and the observed
-location. Its **Identify the light** button makes the demo light signal
-itself.
+## Scene triggers
+
+- **Maintenance reminder becomes urgent**: a reminder becomes urgent, then
+  very urgent. Once per level and per due date or odometer. Variables:
+  vehicle, reminder, due, urgency ("Urgent" or "Very urgent").
+- **Maintenance reminder past due**: a reminder passes its date or odometer.
+  Once per due date or odometer. Variables: vehicle, reminder, due.
+
+Both can be filtered by **Vehicle** (empty: all). The first read after the
+installation is silent: what is already urgent or past due shows on the
+device, it is not announced. A recurring reminder marked as done in LubeLogger
+gets a new due date or odometer: it is announced again when the time comes.
+The triggers fire at the first read after the change.
+
+## Scene actions
+
+- **Add an odometer reading to LubeLogger**: choose the vehicle and enter the
+  reading, a number or a scene variable (for instance the odometer reported by
+  your car maker's integration). The action reads LubeLogger, adds the reading
+  with today's date, then reads the reminders again (those by odometer move
+  with it). A reading equal to the last one adds nothing; a lower one, or one
+  more than 10,000 above it (wrong unit, sensor glitch), is refused. Results: **Reading added** and **Odometer**.
+- **Read a vehicle in LubeLogger**: returns the vehicle, the odometer, the
+  average consumption, the cost of the month, the next reminder and its
+  urgency, the number of reminders past due and urgent, for a message or a
+  condition.
+
+## Scene examples
+
+- **Oil change ahead**: trigger "Maintenance reminder becomes urgent" → message
+  "{{triggerEvent.data.vehicle_name}}: {{triggerEvent.data.reminder}} due
+  ({{triggerEvent.data.due}})".
+- **Inspection overdue**: trigger "Maintenance reminder past due" → urgent
+  message to the whole family.
+- **Automatic reading**: every evening at 9 pm → "Add an odometer reading" with
+  the odometer variable of the car, then "Read a vehicle" → continue only if
+  reminders are past due → message with the next reminder.
 
 ## Troubleshooting
 
-The integration logs everything it does: check the integration logs from the
-Gladys UI (or `docker logs` on the host) with `LOG_LEVEL=debug` for the full
-detail.
+- **"Access refused"**: check the API key (it may have been deleted), or the
+  user name and password.
+- **"LubeLogger refused the write"** when adding a reading: the API key only
+  has the View permission; create one with View and Edit.
+- **"LubeLogger does not answer"**: check the address and port from the Gladys
+  machine. The container is on a bridge network: `localhost` is the container
+  itself, enter the IP address of the server instead.
+- **"This address does not answer like LubeLogger 1.5.9 or later"**: a proxy
+  login page answers instead of LubeLogger, or its version is too old.
+- Odometer or consumption off: check the **Distance unit**.
+- For more details in the logs of the integration, set `LOG_LEVEL=debug`.
+
+## Limitations
+
+- Every read makes seven requests, among them the list of every fill-up (for
+  the consumption): keep a long interval on a very long history.
+- The only write is the odometer reading of the scene action; nothing is ever
+  deleted.
+- Reminders "by date or odometer" cannot be compared with one another: at the
+  same urgency, those with a date come before those by odometer only.
+- Not affiliated with the LubeLogger project.

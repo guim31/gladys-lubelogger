@@ -1,177 +1,615 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "LubeLogger",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Your LubeLogger vehicles: odometer, consumption, costs and maintenance reminders.",
+    "fr": "Vos véhicules LubeLogger : kilométrage, consommation, coûts et rappels d'entretien.",
+    "de": "Deine LubeLogger-Fahrzeuge: Kilometerstand, Verbrauch, Kosten und Wartungserinnerungen.",
+    "es": "Sus vehículos de LubeLogger: kilometraje, consumo, costes y recordatorios de mantenimiento."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-lubelogger:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-lubelogger/main/cover.png",
+  "categories": ["services"],
   "transports": ["local", "cloud"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Connect LubeLogger",
+        "fr": "Connecter LubeLogger",
+        "de": "LubeLogger verbinden",
+        "es": "Conectar LubeLogger"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Enter the address of your LubeLogger server (port 8080 by default), version 1.5.9 or later. If authentication is on in LubeLogger, create an API key in its settings (View and Edit permissions; View only if you do not add odometer readings) or enter a LubeLogger user below.",
+        "fr": "Saisissez l'adresse de votre serveur LubeLogger (port 8080 par défaut), version 1.5.9 ou plus récente. Si l'authentification est activée dans LubeLogger, créez une clé d'API dans ses paramètres (droits View et Edit ; View seul si vous n'ajoutez pas de relevés de compteur) ou saisissez un utilisateur LubeLogger ci-dessous.",
+        "de": "Gib die Adresse deines LubeLogger-Servers ein (standardmäßig Port 8080), Version 1.5.9 oder neuer. Ist in LubeLogger die Anmeldung aktiv, erstelle in seinen Einstellungen einen API-Schlüssel (Rechte View und Edit; nur View, wenn du keine Kilometerstände hinzufügst) oder gib unten einen LubeLogger-Benutzer ein.",
+        "es": "Introduzca la dirección de su servidor LubeLogger (puerto 8080 por defecto), versión 1.5.9 o posterior. Si la autenticación está activada en LubeLogger, cree una clave de API en sus ajustes (permisos View y Edit; solo View si no añade lecturas del cuentakilómetros) o introduzca un usuario de LubeLogger abajo."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://docs.lubelogger.com/Advanced/API",
+          "label": {
+            "en": "LubeLogger API documentation",
+            "fr": "Documentation de l'API LubeLogger",
+            "de": "LubeLogger-API-Dokumentation",
+            "es": "Documentación de la API de LubeLogger"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "url",
+      "type": "string",
+      "label": {
+        "en": "LubeLogger address",
+        "fr": "Adresse de LubeLogger",
+        "de": "LubeLogger-Adresse",
+        "es": "Dirección de LubeLogger"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
+      "placeholder": {
+        "en": "e.g. 192.168.1.50:8080",
+        "fr": "ex. 192.168.1.50:8080",
+        "de": "z. B. 192.168.1.50:8080",
+        "es": "p. ej. 192.168.1.50:8080"
+      },
       "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
+      "default": ""
     },
     {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+      "key": "api_key",
+      "type": "secret",
+      "label": {
+        "en": "API key (optional)",
+        "fr": "Clé d'API (facultative)",
+        "de": "API-Schlüssel (optional)",
+        "es": "Clave de API (opcional)"
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
+      "description": {
+        "en": "Leave empty if authentication is off in LubeLogger, or to use a user name and password.",
+        "fr": "Laissez vide si l'authentification est désactivée dans LubeLogger, ou pour utiliser un nom d'utilisateur.",
+        "de": "Leer lassen, wenn die Anmeldung in LubeLogger aus ist, oder um Benutzername und Passwort zu nutzen.",
+        "es": "Déjelo vacío si la autenticación está desactivada en LubeLogger, o para usar un nombre de usuario."
+      },
+      "required": false
     },
     {
-      "key": "unit",
-      "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
+      "key": "username",
+      "type": "string",
+      "label": {
+        "en": "User name (without API key)",
+        "fr": "Nom d'utilisateur (sans clé d'API)",
+        "de": "Benutzername (ohne API-Schlüssel)",
+        "es": "Nombre de usuario (sin clave de API)"
+      },
       "required": false,
-      "default": "celsius",
+      "default": ""
+    },
+    {
+      "key": "password",
+      "type": "secret",
+      "label": {
+        "en": "Password (without API key)",
+        "fr": "Mot de passe (sans clé d'API)",
+        "de": "Passwort (ohne API-Schlüssel)",
+        "es": "Contraseña (sin clave de API)"
+      },
+      "required": false
+    },
+    {
+      "key": "distance_unit",
+      "type": "select",
+      "label": {
+        "en": "Distance unit used in LubeLogger",
+        "fr": "Unité de distance utilisée dans LubeLogger",
+        "de": "In LubeLogger genutzte Entfernungseinheit",
+        "es": "Unidad de distancia usada en LubeLogger"
+      },
+      "description": {
+        "en": "LubeLogger stores plain numbers: tell Gladys whether they are kilometres (litres, L/100 km) or miles (US gallons, mpg).",
+        "fr": "LubeLogger enregistre des nombres bruts : indiquez s'il s'agit de kilomètres (litres, L/100 km) ou de miles (gallons US, mpg).",
+        "de": "LubeLogger speichert reine Zahlen: gib an, ob es Kilometer (Liter, L/100 km) oder Meilen (US-Gallonen, mpg) sind.",
+        "es": "LubeLogger guarda números sin unidad: indique si son kilómetros (litros, L/100 km) o millas (galones EE. UU., mpg)."
+      },
+      "required": false,
+      "default": "km",
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+        {
+          "value": "km",
+          "label": {
+            "en": "Kilometres",
+            "fr": "Kilomètres",
+            "de": "Kilometer",
+            "es": "Kilómetros"
+          }
+        },
+        {
+          "value": "mi",
+          "label": {
+            "en": "Miles",
+            "fr": "Miles",
+            "de": "Meilen",
+            "es": "Millas"
+          }
+        }
       ]
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
-      "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+      "key": "refresh_minutes",
+      "type": "select",
+      "label": {
+        "en": "Read LubeLogger every",
+        "fr": "Lire LubeLogger toutes les",
+        "de": "LubeLogger lesen alle",
+        "es": "Leer LubeLogger cada"
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": "15",
+      "options": [
+        {
+          "value": "5",
+          "label": {
+            "en": "5 minutes",
+            "fr": "5 minutes",
+            "de": "5 Minuten",
+            "es": "5 minutos"
+          }
+        },
+        {
+          "value": "15",
+          "label": {
+            "en": "15 minutes",
+            "fr": "15 minutes",
+            "de": "15 Minuten",
+            "es": "15 minutos"
+          }
+        },
+        {
+          "value": "30",
+          "label": {
+            "en": "30 minutes",
+            "fr": "30 minutes",
+            "de": "30 Minuten",
+            "es": "30 minutos"
+          }
+        },
+        {
+          "value": "60",
+          "label": {
+            "en": "60 minutes",
+            "fr": "60 minutes",
+            "de": "60 Minuten",
+            "es": "60 minutos"
+          }
+        }
+      ]
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "label": {
+        "en": "Language of names and messages",
+        "fr": "Langue des noms et messages",
+        "de": "Sprache der Namen und Meldungen",
+        "es": "Idioma de nombres y mensajes"
+      },
+      "description": {
+        "en": "Feature names are set when a device is added to Gladys.",
+        "fr": "Les noms des fonctionnalités sont fixés à l'ajout d'un appareil dans Gladys.",
+        "de": "Die Namen der Funktionen werden beim Hinzufügen eines Geräts zu Gladys festgelegt.",
+        "es": "Los nombres de las funciones se fijan al añadir un dispositivo a Gladys."
+      },
+      "required": false,
+      "default": "fr",
+      "options": [
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
+        }
+      ]
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
       "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "reminder_urgent",
+      "label": {
+        "en": "Maintenance reminder becomes urgent",
+        "fr": "Rappel d'entretien devenu urgent",
+        "de": "Wartungserinnerung wird dringend",
+        "es": "Recordatorio de mantenimiento urgente"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A LubeLogger reminder becomes urgent, then very urgent (once per level and per due date or odometer).",
+        "fr": "Un rappel LubeLogger devient urgent, puis très urgent (une fois par niveau et par échéance).",
+        "de": "Eine LubeLogger-Erinnerung wird dringend, dann sehr dringend (einmal pro Stufe und Fälligkeit).",
+        "es": "Un recordatorio de LubeLogger se vuelve urgente y luego muy urgente (una vez por nivel y vencimiento)."
       },
       "fields": [
         {
-          "key": "device",
+          "key": "vehicle",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
-        },
-        {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
-          "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
-          ]
+          "required": false,
+          "label": {
+            "en": "Vehicle",
+            "fr": "Véhicule",
+            "de": "Fahrzeug",
+            "es": "Vehículo"
+          }
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "vehicle_name",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "Vehicle",
+            "fr": "Véhicule",
+            "de": "Fahrzeug",
+            "es": "Vehículo"
+          }
+        },
+        {
+          "key": "reminder",
+          "type": "string",
+          "label": {
+            "en": "Reminder",
+            "fr": "Rappel",
+            "de": "Erinnerung",
+            "es": "Recordatorio"
+          }
+        },
+        {
+          "key": "due",
+          "type": "string",
+          "label": {
+            "en": "Due",
+            "fr": "Échéance",
+            "de": "Fällig",
+            "es": "Vencimiento"
+          }
+        },
+        {
+          "key": "urgency",
+          "type": "string",
+          "label": {
+            "en": "Urgency",
+            "fr": "Urgence",
+            "de": "Dringlichkeit",
+            "es": "Urgencia"
+          }
+        }
+      ]
+    },
+    {
+      "key": "reminder_past_due",
+      "label": {
+        "en": "Maintenance reminder past due",
+        "fr": "Rappel d'entretien en retard",
+        "de": "Wartungserinnerung überfällig",
+        "es": "Recordatorio de mantenimiento vencido"
+      },
+      "description": {
+        "en": "A LubeLogger reminder passes its due date or odometer (once per due date or odometer).",
+        "fr": "Un rappel LubeLogger dépasse sa date ou son kilométrage d'échéance (une fois par échéance).",
+        "de": "Eine LubeLogger-Erinnerung überschreitet ihr Datum oder ihren Kilometerstand (einmal pro Fälligkeit).",
+        "es": "Un recordatorio de LubeLogger supera su fecha o su kilometraje de vencimiento (una vez por vencimiento)."
+      },
+      "fields": [
+        {
+          "key": "vehicle",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Vehicle",
+            "fr": "Véhicule",
+            "de": "Fahrzeug",
+            "es": "Vehículo"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "vehicle_name",
+          "type": "string",
+          "label": {
+            "en": "Vehicle",
+            "fr": "Véhicule",
+            "de": "Fahrzeug",
+            "es": "Vehículo"
+          }
+        },
+        {
+          "key": "reminder",
+          "type": "string",
+          "label": {
+            "en": "Reminder",
+            "fr": "Rappel",
+            "de": "Erinnerung",
+            "es": "Recordatorio"
+          }
+        },
+        {
+          "key": "due",
+          "type": "string",
+          "label": {
+            "en": "Due",
+            "fr": "Échéance",
+            "de": "Fällig",
+            "es": "Vencimiento"
+          }
         }
       ]
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+      "key": "add_odometer",
+      "label": {
+        "en": "Add an odometer reading to LubeLogger",
+        "fr": "Ajouter un relevé de compteur à LubeLogger",
+        "de": "Kilometerstand zu LubeLogger hinzufügen",
+        "es": "Añadir una lectura del cuentakilómetros a LubeLogger"
       },
-      "timeout_seconds": 15,
+      "description": {
+        "en": "For instance the odometer of your car's own integration. A lower reading is refused, an equal one adds nothing.",
+        "fr": "Par exemple le kilométrage de l'intégration de votre voiture. Un relevé inférieur est refusé, un relevé égal n'ajoute rien.",
+        "de": "Zum Beispiel der Kilometerstand aus der Integration deines Autos. Ein niedrigerer Stand wird abgelehnt, ein gleicher fügt nichts hinzu.",
+        "es": "Por ejemplo, el kilometraje de la integración de su coche. Una lectura inferior se rechaza, una igual no añade nada."
+      },
+      "timeout_seconds": 90,
       "fields": [
         {
-          "key": "device",
+          "key": "vehicle",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "required": true,
+          "label": {
+            "en": "Vehicle",
+            "fr": "Véhicule",
+            "de": "Fahrzeug",
+            "es": "Vehículo"
+          }
+        },
+        {
+          "key": "odometer",
+          "type": "string",
+          "required": true,
+          "label": {
+            "en": "Odometer reading",
+            "fr": "Relevé du compteur",
+            "de": "Kilometerstand",
+            "es": "Lectura del cuentakilómetros"
+          },
+          "description": {
+            "en": "A number, or a scene variable such as the odometer of another device.",
+            "fr": "Un nombre, ou une variable de scène comme le kilométrage d'un autre appareil.",
+            "de": "Eine Zahl, oder eine Szenenvariable wie der Kilometerstand eines anderen Geräts.",
+            "es": "Un número, o una variable de escena como el kilometraje de otro dispositivo."
+          },
+          "placeholder": {
+            "en": "e.g. 45210",
+            "fr": "ex. 45210",
+            "de": "z. B. 45210",
+            "es": "p. ej. 45210"
+          }
         }
       ],
       "outputs": [
         {
-          "key": "signalled",
+          "key": "added",
           "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "label": {
+            "en": "Reading added",
+            "fr": "Relevé ajouté",
+            "de": "Stand hinzugefügt",
+            "es": "Lectura añadida"
+          }
+        },
+        {
+          "key": "odometer",
+          "type": "number",
+          "label": {
+            "en": "Odometer",
+            "fr": "Kilométrage",
+            "de": "Kilometerstand",
+            "es": "Kilometraje"
+          }
+        }
+      ]
+    },
+    {
+      "key": "vehicle_status",
+      "label": {
+        "en": "Read a vehicle in LubeLogger",
+        "fr": "Lire un véhicule dans LubeLogger",
+        "de": "Fahrzeug in LubeLogger lesen",
+        "es": "Leer un vehículo en LubeLogger"
+      },
+      "description": {
+        "en": "Odometer, next reminder, reminders past due or urgent, cost of the month: for a message or a condition.",
+        "fr": "Kilométrage, prochain rappel, rappels en retard ou urgents, coût du mois : pour un message ou une condition.",
+        "de": "Kilometerstand, nächste Erinnerung, überfällige oder dringende Erinnerungen, Monatskosten: für eine Nachricht oder eine Bedingung.",
+        "es": "Kilometraje, próximo recordatorio, recordatorios vencidos o urgentes, coste del mes: para un mensaje o una condición."
+      },
+      "timeout_seconds": 90,
+      "fields": [
+        {
+          "key": "vehicle",
+          "type": "select",
+          "source": "devices",
+          "required": true,
+          "label": {
+            "en": "Vehicle",
+            "fr": "Véhicule",
+            "de": "Fahrzeug",
+            "es": "Vehículo"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "vehicle_name",
+          "type": "string",
+          "label": {
+            "en": "Vehicle",
+            "fr": "Véhicule",
+            "de": "Fahrzeug",
+            "es": "Vehículo"
+          }
+        },
+        {
+          "key": "odometer",
+          "type": "number",
+          "label": {
+            "en": "Odometer",
+            "fr": "Kilométrage",
+            "de": "Kilometerstand",
+            "es": "Kilometraje"
+          }
+        },
+        {
+          "key": "consumption",
+          "type": "number",
+          "label": {
+            "en": "Average consumption",
+            "fr": "Consommation moyenne",
+            "de": "Durchschnittsverbrauch",
+            "es": "Consumo medio"
+          }
+        },
+        {
+          "key": "month_cost",
+          "type": "number",
+          "label": {
+            "en": "Cost this month",
+            "fr": "Coût du mois",
+            "de": "Kosten diesen Monat",
+            "es": "Coste del mes"
+          }
+        },
+        {
+          "key": "next_reminder",
+          "type": "string",
+          "label": {
+            "en": "Next reminder",
+            "fr": "Prochain rappel",
+            "de": "Nächste Erinnerung",
+            "es": "Próximo recordatorio"
+          }
+        },
+        {
+          "key": "next_urgency",
+          "type": "string",
+          "label": {
+            "en": "Urgency of the next reminder",
+            "fr": "Urgence du prochain rappel",
+            "de": "Dringlichkeit der nächsten Erinnerung",
+            "es": "Urgencia del próximo recordatorio"
+          }
+        },
+        {
+          "key": "past_due",
+          "type": "number",
+          "label": {
+            "en": "Reminders past due",
+            "fr": "Rappels en retard",
+            "de": "Überfällige Erinnerungen",
+            "es": "Recordatorios vencidos"
+          }
+        },
+        {
+          "key": "urgent",
+          "type": "number",
+          "label": {
+            "en": "Urgent reminders",
+            "fr": "Rappels urgents",
+            "de": "Dringende Erinnerungen",
+            "es": "Recordatorios urgentes"
+          }
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "upcoming",
+      "label": {
+        "en": "Upcoming maintenance",
+        "fr": "Prochains entretiens",
+        "de": "Anstehende Wartungen",
+        "es": "Próximos mantenimientos"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "LubeLogger reminders, the most urgent first, for every vehicle or one.",
+        "fr": "Rappels LubeLogger, les plus urgents d'abord, pour tous les véhicules ou un seul.",
+        "de": "LubeLogger-Erinnerungen, die dringendsten zuerst, für alle Fahrzeuge oder eines.",
+        "es": "Recordatorios de LubeLogger, los más urgentes primero, de todos los vehículos o de uno."
+      },
+      "icon": "tool",
+      "settings": [
+        {
+          "key": "vehicle",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Vehicle (empty: all)",
+            "fr": "Véhicule (vide : tous)",
+            "de": "Fahrzeug (leer: alle)",
+            "es": "Vehículo (vacío: todos)"
+          }
+        }
+      ]
     }
   ]
 }

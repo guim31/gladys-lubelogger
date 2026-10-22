@@ -1,0 +1,13 @@
+[
+  {
+    "vehicleId": 1,
+    "id": 1,
+    "date": "2026-10-01",
+    "description": "Insurance",
+    "notes": null,
+    "cost": 420.5,
+    "tags": "",
+    "extraFields": [],
+    "files": []
+  }
+]

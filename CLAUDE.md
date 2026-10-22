@@ -32,15 +32,20 @@ pushing.
 
 ```
 index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
+src/app.js                        registers every SDK handler on the hub (shared with the tests)
+src/hub.js                        the link to LubeLogger: timer, devices, states, triggers, actions
+src/lubelogger/client.js          the REST calls (headers, authentication, error kinds)
+src/lubelogger/model.js           raw answers -> vehicle summaries (consumption, costs, reminders)
+src/devices.js                    vehicle summaries -> Gladys devices and states
 src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+src/widgets.js                    the "Upcoming maintenance" widget (manifest `widgets`)
+src/texts.js                      every text of the container, in en/fr/de/es
+src/store.js                      /data/lubelogger-state.json: reminder levels already announced
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
 gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
-test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (en and fr mandatory)
+test/                             node --test, against the SDK's fake Gladys and a fake LubeLogger
+test/fixtures/lubelogger/1.7.4/   bodies recorded on a real LubeLogger 1.7.4
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,10 +75,46 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** is in English, French, German ("du") and Spanish
+  ("usted"): action messages, manifest texts, widget content, feature names,
+  and `docs/{en,fr,de,es}.md`, kept in sync (`test/i18n.test.js`).
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
+
+## LubeLogger
+
+- **Always send `culture-invariant`.** Without it, numbers and dates follow the
+  locale of the server (`"dueOdometer": "45000"`, `"dueDate": "11/15/2026"`).
+  But ask `/api/info` **without** it: the invariant culture answers the
+  currency `¤` instead of the server's (`$`, `€`).
+- **Authentication** is off by default (every call answers). Once on: an API
+  key in `x-api-key` (1.5.8+), or a user in Basic auth. A refusal is a **401 in
+  HTML** (`WWW-Authenticate: Basic`); a key without the Edit permission gets a
+  JSON 403 `{ success: false, message: "Access Denied" }` on a write.
+- **Oldest supported version: 1.5.9.** The `/api/vehicle/<kind>/all` lists
+  exist since 1.5.5 and carry `vehicleId` since 1.5.9; `/api/info` and
+  `/api/version` came with 1.6.5 (404 before: tolerated).
+- **Reminders.** `urgency` is `NotUrgent`, `Urgent`, `VeryUrgent`, `PastDue`,
+  computed by LubeLogger with its own thresholds (30/7 days, 100/50 distance
+  units by default): never recomputed here. `userMetric` (`Date`, `Odometer`,
+  `Both`) says what is due; the empty date is `0001-01-01`. `dueDays` is
+  counted in UTC by the server (3 instead of 4 on the recording day): the
+  integration counts days on Gladys' local day. A recurring reminder done in
+  LubeLogger gets a new `dueDate`/`dueOdometer`: the trigger key includes them.
+- **Odometer.** `POST /api/vehicle/odometerrecords/add?vehicleId=` needs `date`
+  and `odometer` (400 otherwise), accepts **any vehicle id**, even a deleted
+  one, and a reading lower than the last: the scene action checks both.
+  LubeLogger stores whole numbers.
+- **Consumption.** `fuelEconomy` of a fuel record is per 100 distance units by
+  default (`useMPG=false`), 0 when not computable (first fill-up, missed
+  fill-up). The integration averages like LubeLogger (distance over fuel), and
+  inverts it for mpg / mi/kWh. Gladys has no L/100 km nor mpg unit: fuel is a
+  `volume-sensor` in litres (or without unit for mpg), the unit in the name.
+- Sold vehicles (`soldDate`) are left out of Gladys.
+- Testing with Docker: `ghcr.io/hargata/lubelogger:v1.7.4` on port 8080, no
+  setup needed; `EnableAuth=true`, `UserNameHash` and `UserPasswordHash`
+  (SHA-256 hex) for a root user; `POST /Home/CreateAPIKeyForUser`
+  (`keyName`, `permissions=0&permissions=1`) in Basic auth creates an API key.
 
 ---
 

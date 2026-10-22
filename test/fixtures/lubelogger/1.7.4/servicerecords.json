@@ -1,0 +1,14 @@
+[
+  {
+    "vehicleId": 1,
+    "id": 1,
+    "date": "2026-10-10",
+    "odometer": 43100,
+    "description": "Brake pads",
+    "notes": null,
+    "cost": 180,
+    "tags": "",
+    "extraFields": [],
+    "files": []
+  }
+]

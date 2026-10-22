@@ -1,0 +1,4 @@
+{
+  "success": false,
+  "message": "Input object invalid, Date, and Odometer cannot be empty."
+}
