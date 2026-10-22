@@ -1,8 +1,8 @@
 {
-  "name": "gladys-integration-template-js",
+  "name": "gladys-lubelogger",
   "version": "1.0.0",
   "private": true,
-  "description": "Official starter template to build an external integration for Gladys Assistant with the JavaScript SDK.",
+  "description": "LubeLogger integration for Gladys Assistant: your vehicles, their costs and maintenance reminders.",
   "type": "module",
   "main": "index.js",
   "scripts": {

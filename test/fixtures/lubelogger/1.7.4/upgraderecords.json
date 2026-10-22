@@ -1,0 +1,14 @@
+[
+  {
+    "vehicleId": 2,
+    "id": 1,
+    "date": "2026-10-05",
+    "odometer": 21100,
+    "description": "Floor mats",
+    "notes": null,
+    "cost": 45.9,
+    "tags": "",
+    "extraFields": [],
+    "files": []
+  }
+]
