@@ -107,9 +107,15 @@ test('unreachable, not LubeLogger, unknown path', async () => {
 });
 
 test('a server that never answers times out', async () => {
+  // Node 22 does not keep the event loop alive for AbortSignal.timeout: a
+  // pending timer stands for the open socket of a real request.
   const hang = (url, { signal }) =>
     new Promise((resolve, reject) => {
-      signal.addEventListener('abort', () => reject(signal.reason));
+      const socket = setTimeout(resolve, 5_000);
+      signal.addEventListener('abort', () => {
+        clearTimeout(socket);
+        reject(signal.reason);
+      });
     });
   const client = new LubeLoggerClient({ url: HOST, fetch: hang, timeout: 30 });
   await assert.rejects(client.vehicleInfo(), { kind: 'timeout' });
