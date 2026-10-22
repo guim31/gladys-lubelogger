@@ -40,6 +40,11 @@ export const DEFAULT_TIMINGS = {
 // that many events in one read, the rest is recorded as announced silently.
 export const MAX_EVENTS_PER_READ = 10;
 
+// A reading this far above the last one is refused: a value in the wrong unit
+// or a sensor glitch (65535) would be written for good, and every real reading
+// after it refused as lower.
+export const MAX_ODOMETER_JUMP = 10_000;
+
 // The urgency levels a trigger announces, each once per reminder occurrence.
 // Reaching a level implies the levels before it (a reminder found past due
 // right away is not announced as urgent afterwards).
@@ -544,6 +549,10 @@ export class Hub {
     if (message) {
       return message;
     }
+    if (!this.summary) {
+      // Reconfigured during the read: the new link has not answered yet.
+      return commandMessage('unreachable');
+    }
     const { vehicles, reminders } = this.summary;
     return Object.fromEntries(
       Object.entries(TEST_TEXT).map(([language, render]) => [
@@ -589,6 +598,9 @@ export class Hub {
     const last = vehicle.odometer ?? 0;
     if (odometer < last) {
       throw new CommandError('lower', this.language);
+    }
+    if (odometer - last > MAX_ODOMETER_JUMP) {
+      throw new CommandError('jump', this.language);
     }
     if (odometer === last) {
       logger.debug(`Odometer of vehicle ${vehicle.id} unchanged`);

@@ -204,6 +204,9 @@ test('add an odometer reading: added and read back, equal, lower, unknown vehicl
   assert.equal(lower.success, false);
   assert.match(lower.error, /inférieur au dernier/);
 
+  const glitch = await add(vehicleDevice(CLIO), '65535');
+  assert.match(glitch.error, /plus de 10 000/);
+
   const unknown = await add('ext:test-integration:vehicle:99', '100');
   assert.equal(unknown.success, false);
   assert.match(unknown.error, /Choisissez un véhicule/);

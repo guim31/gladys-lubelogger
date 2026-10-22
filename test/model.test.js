@@ -86,15 +86,35 @@ test('a sold vehicle stays out of Gladys, with its reminders', () => {
   assert.ok(reminders.every((r) => r.vehicleId === 1));
 });
 
-test('average consumption: only the fill-ups LubeLogger could compute', () => {
+test('average consumption: distance over fuel, partial fill-ups included', () => {
   assert.equal(averageConsumption([]), null);
-  assert.equal(averageConsumption([{ fuelConsumed: 40, fuelEconomy: 0 }]), null);
+  assert.equal(averageConsumption([{ odometer: 100, fuelConsumed: 40, fuelEconomy: 0 }]), null);
+  const full = (odometer, fuelConsumed, fuelEconomy) => ({
+    odometer,
+    fuelConsumed,
+    fuelEconomy,
+    isFillToFull: true,
+    missedFuelUp: false,
+  });
+  // 30 + 10 + 30 L over 1000 km: the partial fill-up counts.
   assert.equal(
     averageConsumption([
-      { fuelConsumed: 30, fuelEconomy: 6 },
-      { fuelConsumed: 40, fuelEconomy: 8 },
+      full(1000, 40, 0),
+      full(1500, 30, 6),
+      { odometer: 1800, fuelConsumed: 10, fuelEconomy: 0, isFillToFull: false },
+      full(2000, 30, 8),
     ]),
     7,
+  );
+  // A missed fill-up starts a new segment: its distance is not counted.
+  assert.equal(
+    averageConsumption([
+      full(1000, 40, 0),
+      full(1500, 30, 6),
+      { ...full(3000, 50, 0), missedFuelUp: true },
+      full(3500, 35, 7),
+    ]),
+    6.5,
   );
 });
 

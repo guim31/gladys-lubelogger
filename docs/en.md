@@ -94,8 +94,8 @@ The triggers fire at the first read after the change.
   reading, a number or a scene variable (for instance the odometer reported by
   your car maker's integration). The action reads LubeLogger, adds the reading
   with today's date, then reads the reminders again (those by odometer move
-  with it). A reading equal to the last one adds nothing, a lower one is
-  refused. Results: **Reading added** and **Odometer**.
+  with it). A reading equal to the last one adds nothing; a lower one, or one
+  more than 10,000 above it (wrong unit, sensor glitch), is refused. Results: **Reading added** and **Odometer**.
 - **Read a vehicle in LubeLogger**: returns the vehicle, the odometer, the
   average consumption, the cost of the month, the next reminder and its
   urgency, the number of reminders past due and urgent, for a message or a

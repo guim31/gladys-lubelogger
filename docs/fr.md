@@ -97,7 +97,8 @@ venu. Les déclencheurs partent à la première lecture qui suit le changement.
   kilométrage remonté par l'intégration constructeur de votre voiture).
   L'action relit LubeLogger, ajoute le relevé à la date du jour, puis relit
   les rappels (ceux au kilométrage avancent avec lui). Un relevé égal au
-  dernier n'ajoute rien, un relevé inférieur est refusé. Résultats : **Relevé
+  dernier n'ajoute rien ; un relevé inférieur, ou supérieur de plus de 10 000
+  (mauvaise unité, valeur aberrante d'un capteur), est refusé. Résultats : **Relevé
   ajouté** et **Kilométrage**.
 - **Lire un véhicule dans LubeLogger** : renvoie le véhicule, le kilométrage,
   la consommation moyenne, le coût du mois, le prochain rappel et son urgence,

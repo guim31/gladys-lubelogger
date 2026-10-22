@@ -406,7 +406,7 @@
         "de": "Zum Beispiel der Kilometerstand aus der Integration deines Autos. Ein niedrigerer Stand wird abgelehnt, ein gleicher fügt nichts hinzu.",
         "es": "Por ejemplo, el kilometraje de la integración de su coche. Una lectura inferior se rechaza, una igual no añade nada."
       },
-      "timeout_seconds": 45,
+      "timeout_seconds": 90,
       "fields": [
         {
           "key": "vehicle",
@@ -478,10 +478,10 @@
       "description": {
         "en": "Odometer, next reminder, reminders past due or urgent, cost of the month: for a message or a condition.",
         "fr": "Kilométrage, prochain rappel, rappels en retard ou urgents, coût du mois : pour un message ou une condition.",
-        "de": "Kilometerstand, nächste Erinnerung, überfällige oder dringende Erinnerungen, Monatskosten: für eine Nachricht.",
-        "es": "Kilometraje, próximo recordatorio, recordatorios vencidos o urgentes, coste del mes: para un mensaje."
+        "de": "Kilometerstand, nächste Erinnerung, überfällige oder dringende Erinnerungen, Monatskosten: für eine Nachricht oder eine Bedingung.",
+        "es": "Kilometraje, próximo recordatorio, recordatorios vencidos o urgentes, coste del mes: para un mensaje o una condición."
       },
-      "timeout_seconds": 45,
+      "timeout_seconds": 90,
       "fields": [
         {
           "key": "vehicle",

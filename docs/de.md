@@ -101,7 +101,8 @@ der Änderung.
   Kilometerstand aus der Integration deines Autoherstellers). Die Aktion liest
   LubeLogger, fügt den Stand mit dem heutigen Datum hinzu und liest dann die
   Erinnerungen erneut (die nach Kilometerstand rücken mit). Ein gleicher Stand
-  fügt nichts hinzu, ein niedrigerer wird abgelehnt. Ergebnisse: **Stand
+  fügt nichts hinzu; ein niedrigerer, oder einer mehr als 10.000 darüber
+  (falsche Einheit, Sensorfehler), wird abgelehnt. Ergebnisse: **Stand
   hinzugefügt** und **Kilometerstand**.
 - **Fahrzeug in LubeLogger lesen**: liefert Fahrzeug, Kilometerstand,
   Durchschnittsverbrauch, Monatskosten, nächste Erinnerung und ihre

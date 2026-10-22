@@ -99,7 +99,8 @@ el cambio.
   kilometraje que envía la integración del fabricante de su coche). La acción
   lee LubeLogger, añade la lectura con la fecha de hoy y vuelve a leer los
   recordatorios (los de kilometraje avanzan con ella). Una lectura igual a la
-  última no añade nada, una inferior se rechaza. Resultados: **Lectura
+  última no añade nada; una inferior, o una más de 10.000 por encima (unidad
+  errónea, fallo de un sensor), se rechaza. Resultados: **Lectura
   añadida** y **Kilometraje**.
 - **Leer un vehículo en LubeLogger**: devuelve el vehículo, el kilometraje, el
   consumo medio, el coste del mes, el próximo recordatorio y su urgencia, el

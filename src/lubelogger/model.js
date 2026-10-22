@@ -95,25 +95,32 @@ export function compareReminders(a, b) {
 }
 
 /**
- * Average consumption from the fuel (or charging) records, the way LubeLogger
- * averages it: the distance driven over the fuel used, on the fill-ups it
- * could compute (`fuelEconomy` > 0: not the first one, not after a missed
- * fill-up). `fuelEconomy` comes per 100 distance units (the API default), so
- * the distance of a fill-up is `fuel * 100 / fuelEconomy`.
+ * Average consumption from the fuel (or charging) records, sorted by date and
+ * odometer, the way LubeLogger averages it: the distance driven over the fuel
+ * used, on the fill-ups it could compute (`fuelEconomy` > 0). A partial
+ * fill-up adds its fuel to the next computed one; the first fill-up and a
+ * missed one (`fuelEconomy` 0 on a full tank) only start a new segment.
  * @returns {number | null} fuel (or kWh) per 100 distance units
  */
 export function averageConsumption(records) {
   let fuel = 0;
   let distance = 0;
+  let start = null;
+  let pending = 0;
   for (const record of records) {
-    const used = number(record.fuelConsumed);
-    const economy = number(record.fuelEconomy);
-    if (used > 0 && economy > 0) {
-      fuel += used;
-      distance += (used * 100) / economy;
+    const used = number(record.fuelConsumed) ?? 0;
+    const odometer = number(record.odometer);
+    if (number(record.fuelEconomy) > 0 && start !== null && odometer > start) {
+      fuel += pending + used;
+      distance += odometer - start;
+    } else if (record.isFillToFull === false && !record.missedFuelUp && start !== null) {
+      pending += used;
+      continue;
     }
+    start = odometer;
+    pending = 0;
   }
-  return distance > 0 ? round((fuel * 100) / distance, 2) : null;
+  return distance > 0 && fuel > 0 ? round((fuel * 100) / distance, 2) : null;
 }
 
 const byVehicle = (list, vehicleId) =>
